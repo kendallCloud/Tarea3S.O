@@ -1,12 +1,14 @@
+from Usuario import *
 import os
 import numpy as np
 from datetime import datetime
 class   ControlVersiones:
     def __init__(self) :
-        self.RegistrosArch=[]
+        self.userslist=list()
         self.Inicio=False
 
     def CrearCarpeta(self,nombre):
+        
         directorio="Usuarios/"+nombre
         try:
             
@@ -20,6 +22,7 @@ class   ControlVersiones:
 
             os.mkdir(directorio+"/Temp")
             os.mkdir(directorio+"/Perm")
+            os.mkdir(directorio+"/Documentos")
         except OSError:
             print("La creacion de la carpeta %s fallo" % directorio)
         else:
@@ -143,13 +146,30 @@ class   ControlVersiones:
             print("\033[2J\033[1;1f")
             self.Registrar()
 
+    def getUsuarios(self):
+        with open('Usuarios.rg') as temp_f:
+            archivo = temp_f.readlines()
+            for line in archivo:
+                user=Usuario(line[0:line.index(" ")],line[line.index(" "):line.index("\n")],1)
+                self.userslist.append(user)
+                # print(line) 
+        # for x in self.userslist:
+        #     print(x.toString())
+    def Carpetas(self, nombre):
+        for x in self.userslist:
+            if x.Nombre==nombre:
+                x.CrearCarpeta()
+
 
 c=ControlVersiones()
 i=0
 def __main__():
-    c.Principal()
+    # os.mkdir("Usuarios")
+    # c.Principal()
     
     # c.Registrar()
+    c.getUsuarios()
+    c.Carpetas("Dario")
     # c.AddFile(1,"Kendal","Hola quiubo x2+221\n haoisdjk\nasdhjkahskjh\njhskdjhkeb")
     # c.RecuperarArchivo('Kendal',1)
     # c.InicioSesion("Ian","mamapichas")
