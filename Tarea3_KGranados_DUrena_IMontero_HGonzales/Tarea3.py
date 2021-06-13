@@ -2,13 +2,13 @@ from Usuario import *
 import os
 import numpy as np
 from datetime import datetime
+import shutil
 class   ControlVersiones:
     def __init__(self) :
         self.userslist=list()
         self.Inicio=False
 
-    def CrearCarpeta(self,nombre):
-        
+    def CrearCarpeta(self,nombre): #Crea por defecto las carpetas de cada usuario
         directorio="Usuarios/"+nombre
         try:
             
@@ -29,7 +29,8 @@ class   ControlVersiones:
             print("Se ha creado la carpeta:%s"%directorio)
 
 
-    def Registrar(self):
+    def Registrar(self): # Registra un usuario
+        print("\033[2J\033[1;1f")
         nombre=input("Introduzca el nombre: ")
         password=input("Introduzca la contraseña: ")
         registro= open("Usuarios.rg", 'a')
@@ -44,22 +45,23 @@ class   ControlVersiones:
             self.Registrar()
 
 
-    def InicioSesion(self,name,passw):
+    def InicioSesion(self,name,passw):# Verifica si el usuario existe, si existe ingresa a la app sino lo envia a registrarse
         concat=str(name+" "+passw)
-        
+        lista = list()
+        usuario=False
         with open('Usuarios.rg') as temp_f:
             archivo = temp_f.readlines()
             for line in archivo:
                 if concat in line:
-                    self.Inicio=True
-                    print("Inicio Sesion de forma Satisfactoria\n\n")
-                else:
-                    self.Inicio=False
-                    print("No Encontrado\n\n\tPor favor proceda a registrarse")
-                    self.Registrar()
+                    usuario=True
+        if usuario:
+            print("Inicio Sesion de forma Satisfactoria\n\n")
+        else:
+            print("No Encontrado\n\n\tPor favor proceda a registrarse")
+            self.Registrar()
 
 
-    def Autenticar(self,nombre):
+    def Autenticar(self,nombre): #Verifica si el usuario existe en la "bd"
         with open('Usuarios.rg') as temp_f:
             archivo = temp_f.readlines()
             for line in archivo:
@@ -71,7 +73,7 @@ class   ControlVersiones:
                     return False
 
 
-    def AddFile(self,tipo,nombre,dato):
+    def AddFile(self,tipo,nombre,dato): # Agrega archivos temporales o permanentes a sus respectivas carpetas
         now=datetime.now()
         
         filename=datetime.now().strftime("%d_%b_%Y_%H_%M_%S")
@@ -90,14 +92,14 @@ class   ControlVersiones:
 
 
 
-    def grabarArchivo(self, direccion,dato):
+    def grabarArchivo(self, direccion,dato):# Crea o modifica un archivo
         registro= open(direccion, 'a')
         registro.write(dato)
         registro.close()
 
 
 
-    def RecuperarArchivo(self,nombre,tipo):
+    def RecuperarArchivo(self,nombre,tipo):#obtiene la ultima version guardada
         lista= list()
         if tipo==1:
             concat='Usuarios/'+nombre+'/Archtemp.txt'
@@ -123,6 +125,34 @@ class   ControlVersiones:
             registro.write(x)
         registro.close()
 
+    def Commit(self, nombre): #Transfiere la ultima actualizacion de los archivos temporales a los Permanentes
+        try:
+            lista= list()
+            concat='Usuarios/'+nombre+'/Archtemp.txt'
+            concat2='Usuarios/'+nombre+'/Archperm.txt'
+            with open(concat) as temp_f:
+                archivo = temp_f.readlines()
+                for line in archivo:
+                    lista.append(line)
+            nombrearch=lista.pop(len(lista)-1)
+            nombrearch=nombrearch[0:len(nombrearch)-1]
+
+            print(lista)
+            print(nombrearch)
+            filedir= 'Usuarios/'+nombre+"/Temp/"+nombrearch
+            filedir2='Usuarios/'+nombre+"/Perm/"+nombrearch
+            
+            self.ObtenerArch(filedir)
+            
+            shutil.move(filedir,filedir2)
+            self.grabarArchivo(concat2,nombrearch+"\n")
+            # os.remove(concat)
+            registro= open(concat, 'w')
+            for x in lista:
+                registro.write(x)
+            registro.close()
+        except:
+            print("\n\nNo se encuentra ningun Backup\n\n")
 
     def ObtenerArch(self,direccion):
 
@@ -146,16 +176,15 @@ class   ControlVersiones:
             print("\033[2J\033[1;1f")
             self.Registrar()
 
-    def getUsuarios(self):
+    def getUsuarios(self):# Obtiene los usuarios registrados y los ingresa en una lista para posteriormente ser utilizados
         with open('Usuarios.rg') as temp_f:
             archivo = temp_f.readlines()
             for line in archivo:
                 user=Usuario(line[0:line.index(" ")],line[line.index(" "):line.index("\n")],1)
                 self.userslist.append(user)
-                # print(line) 
-        # for x in self.userslist:
-        #     print(x.toString())
-    def Carpetas(self, nombre):
+
+
+    def Carpetas(self, nombre):# Crea Una carpeta si el usuario asi lo desea
         for x in self.userslist:
             if x.Nombre==nombre:
                 x.CrearCarpeta()
@@ -165,11 +194,11 @@ c=ControlVersiones()
 i=0
 def __main__():
     # os.mkdir("Usuarios")
-    # c.Principal()
+    c.Principal()
     
     # c.Registrar()
-    c.getUsuarios()
-    c.Carpetas("Dario")
+    # c.getUsuarios()
+    # c.Carpetas("Dario")
     # c.AddFile(1,"Kendal","Hola quiubo x2+221\n haoisdjk\nasdhjkahskjh\njhskdjhkeb")
     # c.RecuperarArchivo('Kendal',1)
     # c.InicioSesion("Ian","mamapichas")
