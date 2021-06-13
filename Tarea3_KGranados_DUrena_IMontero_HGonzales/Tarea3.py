@@ -3,6 +3,7 @@ import os
 import numpy as np
 from datetime import datetime
 import shutil
+import msvcrt as ms
 class   ControlVersiones:
     def __init__(self) :
         self.userslist=list()
@@ -161,45 +162,102 @@ class   ControlVersiones:
         registro.close()
 
     def Principal(self):
-
+        self.getUsuarios()
         print("\033[2J\033[1;1f")
         print(chr(27)+"[1;30;47m"+"\t\t***BIENVENIDO AL SISTEMA DE CONTROL DE VERSIONES***\n\n\n"+'\033[0;m')
-        print(chr(27)+"[1;31m"+"\t0) Salir\n"+chr(27)+"[1;32m"+"\t1) Iniciar Sesion\n"+chr(27)+"[1;33m"+"\t2) Registrarse\n"+'\033[0;m')
+        print(chr(27)+"[1;31m"+"\t0) Salir\n"+chr(27)+"[1;32m"+"\t1) Iniciar Sesion\n"+chr(27)+"[1;33m"+"\t2) Registrarse\n"+'\033[0;m'+'\033[0;m'+"\t3) Ver Usuarios\n"+'\035')
         print(chr(27)+"[1;30;47m"+"**Si no posee cuenta favor registrarse**\n"+'\033[0;m')
         op=int(input(chr(27)+"[1;30m"+"Seleccione una opcion: "+'\033[0;m'))
-        if op==1:
+        while(op!=0):
             print("\033[2J\033[1;1f")
-            nombre=input("Introduzca el nombre: ")
-            password=input("Introduzca la contraseña: ")
-            self.InicioSesion(nombre,password)
-        elif op==2:
-            print("\033[2J\033[1;1f")
-            self.Registrar()
+            if op==1:
+                nombre=input("Introduzca el nombre: ")
+                password=input("Introduzca la contraseña: ")
+                self.InicioSesion(nombre,password)
+                break
+            elif op==2:
+                self.Registrar()
+                break
+            elif op==3:
+                self.VerUsuarios()
+                break
+            print(chr(27)+"[1;30;47m"+"\t\t***BIENVENIDO AL SISTEMA DE CONTROL DE VERSIONES***\n\n\n"+'\033[0;m')
+            print(chr(27)+"[1;31m"+"\t0) Salir\n"+chr(27)+"[1;32m"+"\t1) Iniciar Sesion\n"+chr(27)+"[1;33m"+"\t2) Registrarse\n"+'\033[0;m'+'\033[0;m'+"\t3) Ver Usuarios\n"+'\035')
+            print(chr(27)+"[1;30;47m"+"**Si no posee cuenta favor registrarse**\n"+'\033[0;m')
+            op=int(input(chr(27)+"[1;30m"+"Seleccione una opcion: "+'\033[0;m'))
+                        
+    def VerUsuarios(self):
+        doc=list()
+        print("Los usuarios existentes son: ")
+        contador=0
+        for x in self.userslist:
+            print(str(contador+1)+"."+x.Nombre)
+            contador+=1
+        nombre=input("Porfavor escriba el nombre del usuario que desea observar: ")
+        for x in self.userslist:
+            if nombre == x.Nombre:
+                contador=0
+                print("\033[2J\033[1;1f")        
+                print("Los archivos del usuario "+chr(27)+"1;33m"+x.Nombre+'\033[0;m'+" son:")
+                directorio="Usuarios/"+nombre
+                with os.scandir(directorio) as ficheros:
+                    for fichero in ficheros:
+                        doc.append(directorio+"/"+fichero.name)
+                        # print(str(contador+1)+"."+fichero.name)
+                        contador+=1
+                opcion= int(input("Digite el numero de su eleccion: "))
+                directorio=doc[opcion-1]
+                contador=0
+                with os.scandir(directorio) as ficheros:
+                    for fichero in ficheros:
+                        print(str(contador+1)+"."+fichero.name)
+                        contador+=1
 
-    def getUsuarios(self):# Obtiene los usuarios registrados y los ingresa en una lista para posteriormente ser utilizados
+    def getUsuarios(self):# Llenar la lista de los usuarios registrados
         with open('Usuarios.rg') as temp_f:
             archivo = temp_f.readlines()
             for line in archivo:
                 user=Usuario(line[0:line.index(" ")],line[line.index(" "):line.index("\n")],1)
                 self.userslist.append(user)
-
+    def Borrar(self):
+        cadena="Hola mundo que tal, estoy programando"
+        while True:
+            if ms.kbhit():
+                print(ms.getch())
+        # while True:
+            # try:
+            #     if ms.kbhit() and ms.getch()==chr(13):
+            #         cadena[0:len(cadena)-1]
+            #         print(cadena)
+            #         break #finishing the loop
+            #     else:
+            #         pass
+            # except:
+            #     break
 
     def Carpetas(self, nombre):# Crea Una carpeta si el usuario asi lo desea
         for x in self.userslist:
             if x.Nombre==nombre:
                 x.CrearCarpeta()
 
+    def ModificarArchivo(self, nombre):
+        direccion="Usuarios/"+nombre+"/Documentos/"
+        with open(direccion) as temp_f:
+                archivo = temp_f.readlines()
+                # for line in archivo:
+                    # lista.append(line)
 
 c=ControlVersiones()
 i=0
 def __main__():
     # os.mkdir("Usuarios")
-    c.Principal()
-    
-    # c.Registrar()
     # c.getUsuarios()
+    # c.Principal()
+    # c.Borrar()
+    # c.Registrar()
+    
     # c.Carpetas("Dario")
-    # c.AddFile(1,"Kendal","Hola quiubo x2+221\n haoisdjk\nasdhjkahskjh\njhskdjhkeb")
+    # c.AddFile(1,"Kendall","Hola quiubo x2+221\n haoisdjk\nasdhjkahskjh\njhskdjhkeb")
     # c.RecuperarArchivo('Kendal',1)
     # c.InicioSesion("Ian","mamapichas")
 

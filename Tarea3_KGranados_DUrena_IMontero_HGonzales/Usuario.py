@@ -1,5 +1,7 @@
 import os
 class Usuario:
+    def __init__(self) -> None:
+        pass
     def __init__(self, Nombre, Contra,Permiso):
         self.Nombre=Nombre
         self.Contra=Contra
@@ -14,5 +16,4 @@ class Usuario:
             os.mkdir(direccion)
         except:
             print("No se pudo crear la carpeta en la direccion: "+direccion)
-        
-        
+    
