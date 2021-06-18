@@ -38,3 +38,32 @@ class Usuario:
             archivo = temp_f.readlines()
             for line in archivo:
                 self.DatoActual+=line
+    def Editar(self):
+        doc=list()
+        txt=list()
+        cont=0
+        directorio="Usuarios/"+self.Nombre
+        print("\t***Archivos***\n\n")
+        with os.scandir(directorio) as ficheros:
+            for fichero in ficheros:
+                doc.append(directorio+"/"+fichero.name)
+                print(str(cont+1)+"."+fichero.name)
+                cont+=1
+        opcion= int(input("\n\nDigite el numero de su eleccion: "))
+        directorio=doc[opcion-1]
+        if str(directorio).find(".txt") !=-1:
+            subprocess.run(["notepad.exe",directorio])
+        else:
+            contador=0
+            print("\033[2J\033[1;1f")
+            print("\t***Archivos***\n\n")
+            print("Los archivos son: \n")
+            with os.scandir(directorio) as ficheros:
+                for fichero in ficheros:
+                    txt.append(directorio+"/"+fichero.name)
+                    print(str(contador+1)+"."+fichero.name)
+                    contador+=1
+            opcion= int(input("\n\nDigite el numero de su eleccion: "))
+            directorio=txt[opcion-1]
+            if  str(directorio).find(".txt")!=-1:
+                subprocess.run(["notepad.exe",directorio])

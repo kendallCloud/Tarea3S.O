@@ -79,7 +79,11 @@ class   ControlVersiones:
                     break
                 if int(op)==2:
                     self.ActualUser.CrearCarpeta()
-
+                    break
+                if int(op)==3:
+                    print("\033[2J\033[1;1f")
+                    self.ActualUser.Editar()
+                    break
                 if int(op)==5:
                     print("1.Si\t2.No\nDesea ingresar como administrador?\n\n")
                     option=input("Seleccione una opcion: ")
