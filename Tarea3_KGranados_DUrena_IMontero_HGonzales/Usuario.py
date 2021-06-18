@@ -53,6 +53,7 @@ class Usuario:
         directorio=doc[opcion-1]
         if str(directorio).find(".txt") !=-1:
             subprocess.run(["notepad.exe",directorio])
+            
         else:
             contador=0
             print("\033[2J\033[1;1f")

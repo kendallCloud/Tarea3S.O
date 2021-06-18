@@ -13,6 +13,8 @@ class   ControlVersiones:
         self.doc=list()
         self.txt=list()
     def CrearCarpeta(self,nombre): #Crea por defecto las carpetas de cada usuario
+        if os.path.isdir("Usuarios/")==False:
+            os.mkdir("Usuarios")
         directorio="Usuarios/"+nombre
         try:
             
@@ -50,6 +52,7 @@ class   ControlVersiones:
         else:
             print("Los datos ya estan en el sistema, vuelva a intentarlo con otro nombre de usuario\n")
             registro.close()
+            time.sleep(3)
             self.Registrar()
 
 
@@ -305,6 +308,9 @@ class   ControlVersiones:
                     subprocess.run(["notepad.exe",directorio])
 
     def getUsuarios(self):# Llenar la lista de los usuarios registrados
+        registro=open('Usuarios.rg','a')
+        registro.write("")
+        registro.close()
         with open('Usuarios.rg') as temp_f:
             archivo = temp_f.readlines()
             for line in archivo:
