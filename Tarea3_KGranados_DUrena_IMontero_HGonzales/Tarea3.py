@@ -45,6 +45,8 @@ class   ControlVersiones:
             registro.close()
             self.userslist.clear()
             self.getUsuarios()
+            time.sleep(3)
+            print("\033[2J\033[1;1f")
         else:
             print("Los datos ya estan en el sistema, vuelva a intentarlo con otro nombre de usuario\n")
             registro.close()
@@ -68,9 +70,9 @@ class   ControlVersiones:
             print("\033[2J\033[1;1f")
             print("0.Salir\n1.Crear Nuevo Documento\n2.Crear Nueva Carpeta\n3.Ver y Editar Documento\n4.Eliminar Documento\n5.Ver otro Usuario\n\n")
             op=(input("Seleccione una opcion: "))
+            print("\033[2J\033[1;1f")
             while int(op)!=0:
                 if int(op)==1:
-                    print("\033[2J\033[1;1f")
                     print("\t\tCreador de documentos\n\n")
                     nombre=str(input("Cual sera el nombre del documento: "))
                     self.ActualUser.CrearArchivo(nombre)
@@ -81,15 +83,16 @@ class   ControlVersiones:
                     self.ActualUser.CrearCarpeta()
                     break
                 if int(op)==3:
-                    print("\033[2J\033[1;1f")
                     self.ActualUser.Editar()
                     break
                 if int(op)==5:
                     print("1.Si\t2.No\nDesea ingresar como administrador?\n\n")
                     option=input("Seleccione una opcion: ")
+                    print("\033[2J\033[1;1f")
                     if int(option)==1:
                         nombre=str(input("Nombre de usuario: "))
                         contra=str(input("Contrasenia: "))
+                        print("\033[2J\033[1;1f")
                         if nombre=="administrador" and contra=="administrador":
                             self.ActualUser.Permiso=3
                             self.VerUsuarios(self.ActualUser.Permiso)
@@ -211,11 +214,10 @@ class   ControlVersiones:
                 nombre=input("Introduzca el nombre: ")
                 password=input("Introduzca la contraseña: ")
                 self.InicioSesion(nombre,password)
-
             elif op==2:
                 self.Registrar()
             elif op==3:
-                self.VerUsuarios(3)
+                self.VerUsuarios(1)
             print(chr(27)+"[1;30;47m"+"\t\t***BIENVENIDO AL SISTEMA DE CONTROL DE VERSIONES***\n\n\n"+'\033[0;m')
             print(chr(27)+"[1;31m"+"\t0) Salir\n"+chr(27)+"[1;32m"+"\t1) Iniciar Sesion\n"+chr(27)+"[1;33m"+"\t2) Registrarse\n"+'\033[0;m'+'\033[0;m'+"\t3) Ver Usuarios\n"+'\033[0;m')
             print(chr(27)+"[1;30;47m"+"**Si no posee cuenta favor registrarse**\n"+'\033[0;m')
