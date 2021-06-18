@@ -9,6 +9,7 @@ import time
 class   ControlVersiones:
     def __init__(self) :
         self.userslist=list()
+        self.ActualUser=None
         self.doc=list()
         self.txt=list()
     def CrearCarpeta(self,nombre): #Crea por defecto las carpetas de cada usuario
@@ -42,6 +43,8 @@ class   ControlVersiones:
             self.CrearCarpeta(nombre)
             print("%s se ha registrado de manera exitosa" %nombre)
             registro.close()
+            self.userslist.clear()
+            self.getUsuarios()
         else:
             print("Los datos ya estan en el sistema, vuelva a intentarlo con otro nombre de usuario\n")
             registro.close()
@@ -58,10 +61,42 @@ class   ControlVersiones:
                     usuario=True
         if usuario:
             print("Inicio Sesion de forma Satisfactoria\n\n")
+            for x in self.userslist:
+                if x.Nombre == name:
+                    self.ActualUser=x
+            time.sleep(2)
+            print("\033[2J\033[1;1f")
+            print("0.Salir\n1.Crear Nuevo Documento\n2.Crear Nueva Carpeta\n3.Ver y Editar Documento\n4.Eliminar Documento\n5.Ver otro Usuario\n\n")
+            op=(input("Seleccione una opcion: "))
+            while int(op)!=0:
+                if int(op)==1:
+                    print("\033[2J\033[1;1f")
+                    print("\t\tCreador de documentos\n\n")
+                    nombre=str(input("Cual sera el nombre del documento: "))
+                    self.ActualUser.CrearArchivo(nombre)
+                    time.sleep(3)
+                    self.Update(1,self.ActualUser.Nombre,self.ActualUser.NombreCarpeta,self.ActualUser.DatoActual)
+                    break
+                if int(op)==2:
+                    self.ActualUser.CrearCarpeta()
+
+                if int(op)==5:
+                    print("1.Si\t2.No\nDesea ingresar como administrador?\n\n")
+                    option=input("Seleccione una opcion: ")
+                    if int(option)==1:
+                        nombre=str(input("Nombre de usuario: "))
+                        contra=str(input("Contrasenia: "))
+                        if nombre=="administrador" and contra=="administrador":
+                            self.ActualUser.Permiso=3
+                            self.VerUsuarios(self.ActualUser.Permiso)
+                    else:
+                        self.ActualUser.Permiso=2   
+                        self.VerUsuarios(self.ActualUser.Permiso)
+                    # break
+
         else:
             print("No Encontrado\n\n\tPor favor proceda a registrarse")
             self.Registrar()
-
 
     def Autenticar(self,nombre): #Verifica si el usuario existe en la "bd"
         with open('Usuarios.rg') as temp_f:
@@ -75,7 +110,7 @@ class   ControlVersiones:
                     return False
 
 
-    def AddFile(self,tipo,nombre,dato): # Agrega archivos temporales o permanentes a sus respectivas carpetas
+    def Update(self,tipo,nombre,carpname,dato): # Agrega archivos temporales o permanentes a sus respectivas carpetas
         now=datetime.now()
         
         filename=datetime.now().strftime("%d_%b_%Y_%H_%M_%S")
@@ -83,23 +118,19 @@ class   ControlVersiones:
             #Guardar el nombre del registro en el archivo
             direccionlist="Usuarios/"+nombre+"/Archtemp.txt"
             #Guardar el archivo en temp con el nombre de la fecha actual
-            direccion="Usuarios/"+nombre+"/Temp/"+filename+".txt"
+            direccion="Usuarios/"+nombre+"/Temp/"+carpname+"/"+filename+".txt"
         if tipo==2:
             #Guardar el nombre del registro en el archivo
             direccionlist="Usuarios/"+nombre+"/Archperm.txt"
             #Guardar el archivo en temp con el nombre de la fecha actual
-            direccion="Usuarios/"+nombre+"/Perm/"+filename+".txt"
-        self.grabarArchivo(direccionlist,filename+".txt\n")
+            direccion="Usuarios/"+nombre+"/Perm/"+carpname+"/"+filename+".txt"
+        self.grabarArchivo(direccionlist,carpname+"/"+filename+".txt\n")
         self.grabarArchivo(direccion,dato)
-
-
 
     def grabarArchivo(self, direccion,dato):# Crea o modifica un archivo
         registro= open(direccion, 'a')
         registro.write(dato)
         registro.close()
-
-
 
     def RecuperarArchivo(self,nombre,tipo):#obtiene la ultima version guardada
         lista= list()
@@ -176,25 +207,53 @@ class   ControlVersiones:
                 nombre=input("Introduzca el nombre: ")
                 password=input("Introduzca la contraseña: ")
                 self.InicioSesion(nombre,password)
+
             elif op==2:
                 self.Registrar()
             elif op==3:
-                self.VerUsuarios(1)
+                self.VerUsuarios(3)
             print(chr(27)+"[1;30;47m"+"\t\t***BIENVENIDO AL SISTEMA DE CONTROL DE VERSIONES***\n\n\n"+'\033[0;m')
             print(chr(27)+"[1;31m"+"\t0) Salir\n"+chr(27)+"[1;32m"+"\t1) Iniciar Sesion\n"+chr(27)+"[1;33m"+"\t2) Registrarse\n"+'\033[0;m'+'\033[0;m'+"\t3) Ver Usuarios\n"+'\033[0;m')
             print(chr(27)+"[1;30;47m"+"**Si no posee cuenta favor registrarse**\n"+'\033[0;m')
             op=int(input("Seleccione una opcion: "))
-                        
+    def Eliminar(self,permiso):
+        if permiso==3:
+            opcion= int(input("Digite el numero de su eleccion: "))
+            directorio=self.doc[opcion-1]
+            if str(directorio).find(".txt") !=-1:
+                os.remove(directorio)
+                print("Se ha removido el siguiente archivo: "+directorio)
+            else:
+                contador=0
+                print("\033[2J\033[1;1f") 
+                print("Los archivos son: \n")
+                with os.scandir(directorio) as ficheros:
+                    for fichero in ficheros:
+                        self.txt.append(directorio+"/"+fichero.name)
+                        print(str(contador+1)+"."+fichero.name)
+                        contador+=1
+                opcion= int(input("Digite el numero de su eleccion: "))
+                directorio=self.txt[opcion-1]
+                if  str(directorio).find(".txt")!=-1:
+                   os.remove(directorio)
+                   print("Se ha removido el siguiente archivo: "+directorio)
+        else:
+            print("No posee los permisos para poder eliminar dicho archivo\n\n")
+                       
+            
+
     def VerUsuarios(self,permiso):
-       
         print("Los usuarios existentes son: ")
         contador=0
+        
         for x in self.userslist:
             print(str(contador+1)+"."+x.Nombre)
             contador+=1
         nombre=input("Porfavor escriba el nombre del usuario que desea observar: ")
         for x in self.userslist:
             if nombre == x.Nombre:
+                print("\n\n1.Ver & Editar\n2.Eliminar\n")
+                op=int(input("Seleccione una opcion: "))
                 contador=0
                 print("\033[2J\033[1;1f")        
                 print("Los archivos del usuario "+x.Nombre+" son:")
@@ -204,39 +263,40 @@ class   ControlVersiones:
                         self.doc.append(directorio+"/"+fichero.name)
                         print(str(contador+1)+"."+fichero.name)
                         contador+=1
-                opcion= int(input("Digite el numero de su eleccion: "))
-                directorio=self.doc[opcion-1]
-                if str(directorio).find(".txt") !=-1:
-                    if permiso == 1:
-                        print("\033[2J\033[1;1f")  
-                        print("\n\nNo cuenta con los permisos necesarios para poder observar los documentos\nPorfavor Registrese o Inicie sesion para poder continuar\n\n")
-                        break
-                    else:
-                        self.Editar(directorio)
-                else:
-                    contador=0
-                    print("\033[2J\033[1;1f") 
-                    print("Los archivos son: \n")
-                    with os.scandir(directorio) as ficheros:
-                        for fichero in ficheros:
-                            self.txt.append(directorio+"/"+fichero.name)
-                            print(str(contador+1)+"."+fichero.name)
-                            contador+=1
-                    opcion= int(input("Digite el numero de su eleccion: "))
-                    directorio=self.txt[opcion-1]
-                    if  str(directorio).find(".txt")!=-1:
-                        if permiso == 1:
-                            print("\033[2J\033[1;1f")  
-                            print("\n\nNo cuenta con los permisos necesarios para poder observar los documentos\nPorfavor Registrese o Inicie sesion para poder continuar\n\n")
-                            break
-                        else:
-                            self.Editar(directorio)
+                
+                if op==1:
+                    self.Editar(permiso)
+                elif op==2:
+                    self.Eliminar(permiso)
+            self.doc.clear()
+            self.txt.clear()
 
-    def VolverPrincipal(self):
-        print("\n\nNo cuenta con los permisos necesarios para poder observar los documentos\nPorfavor Registrese o Inicie sesion para poder continuar\n\nPresione una tecla para continuar...")
-        self.Principal()
-    def Editar(self, file):# Abre un notepad para habilitar la edicion de un documento
-        subprocess.run(["notepad.exe",file])
+    def Editar(self,permiso):# Abre un notepad para habilitar la edicion de un documento
+        opcion= int(input("Digite el numero de su eleccion: "))
+        directorio=self.doc[opcion-1]
+        if str(directorio).find(".txt") !=-1:
+            if permiso == 1:
+                print("\033[2J\033[1;1f")  
+                print("\n\nNo cuenta con los permisos necesarios para poder observar los documentos\nPorfavor Registrese o Inicie sesion para poder continuar\n\n")
+            else:
+                subprocess.run(["notepad.exe",directorio])
+        else:
+            contador=0
+            print("\033[2J\033[1;1f") 
+            print("Los archivos son: \n")
+            with os.scandir(directorio) as ficheros:
+                for fichero in ficheros:
+                    self.txt.append(directorio+"/"+fichero.name)
+                    print(str(contador+1)+"."+fichero.name)
+                    contador+=1
+            opcion= int(input("Digite el numero de su eleccion: "))
+            directorio=self.txt[opcion-1]
+            if  str(directorio).find(".txt")!=-1:
+                if permiso == 1:
+                    print("\033[2J\033[1;1f")  
+                    print("\n\nNo cuenta con los permisos necesarios para poder observar los documentos\nPorfavor Registrese o Inicie sesion para poder continuar\n\n")
+                else:
+                    subprocess.run(["notepad.exe",directorio])
 
     def getUsuarios(self):# Llenar la lista de los usuarios registrados
         with open('Usuarios.rg') as temp_f:
@@ -244,8 +304,6 @@ class   ControlVersiones:
             for line in archivo:
                 user=Usuario(line[0:line.index(" ")],line[line.index(" "):line.index("\n")],1)
                 self.userslist.append(user)
-    
-            
 
     def Carpetas(self, nombre):# Crea Una carpeta si el usuario asi lo desea
         for x in self.userslist:
@@ -254,7 +312,6 @@ class   ControlVersiones:
 
     
 c=ControlVersiones()
-i=0
 def __main__():
     # os.mkdir("Usuarios")
     c.getUsuarios()
