@@ -247,7 +247,7 @@ class   ControlVersiones:
                    os.remove(directorio)
                    print("Se ha removido el siguiente archivo: "+directorio)
         else:
-            print("No posee los permisos para poder eliminar dicho archivo\n\n")
+            print("No posee los permisos para poder eliminar\n\n")
                        
             
 
